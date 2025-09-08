@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SwasthCheck - Smart multilingual health support app. Sign in or create an account to check symptoms, get home remedies, and consult doctors.">
+  <meta name="keywords" content="Health, Symptom Checker, AI Health, SwasthCheck, Online Doctor, Home Remedies">
+  <meta name="author" content="SwasthCheck Team">
+  <title>SwasthCheck | Sign In / Sign Up</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+
+    body {
+      background: linear-gradient(135deg, #1abc9c, #3498db);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      color: #333;
+    }
+
+    h1 { font-size: 24px; margin-bottom: 20px; color: #2c3e50; }
+    p { font-size: 14px; color: #555; margin-bottom: 15px; }
+
+    .container {
+      width: 900px;
+      max-width: 100%;
+      height: 550px;
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+      overflow: hidden;
+      position: relative;
+      display: flex;
+    }
+
+    .form-container {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      width: 50%;
+      padding: 50px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      transition: all 0.6s ease-in-out;
+    }
+
+    .sign-in { left: 0; z-index: 2; }
+    .sign-up { left: 0; opacity: 0; z-index: 1; }
+
+    .container.sign-up-mode .sign-in {
+      transform: translateX(100%);
+      opacity: 0;
+      z-index: 1;
+    }
+
+    .container.sign-up-mode .sign-up {
+      transform: translateX(100%);
+      opacity: 1;
+      z-index: 2;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .input-group {
+      position: relative;
+      margin: 10px 0;
+    }
+
+    input {
+      padding: 12px;
+      width: 100%;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    input:focus {
+      border-color: #3498db;
+      box-shadow: 0 0 6px rgba(52,152,219,0.3);
+      outline: none;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #777;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .toggle-password:focus {
+      outline: 2px solid #3498db;
+      border-radius: 4px;
+    }
+
+    .password-strength {
+      height: 4px;
+      margin-top: 5px;
+      border-radius: 2px;
+      background: #eee;
+      overflow: hidden;
+    }
+
+    .password-strength-bar {
+      height: 100%;
+      width: 0%;
+      transition: width 0.3s, background 0.3s;
+    }
+
+    .remember-forgot {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 10px 0;
+      font-size: 13px;
+    }
+
+    .remember {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .forgot-password {
+      color: #3498db;
+      text-decoration: none;
+    }
+
+    .forgot-password:hover {
+      text-decoration: underline;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.3s, opacity 0.3s, background 0.3s;
+    }
+
+    button:hover { transform: scale(1.02); }
+
+    .btn-primary { 
+      background: #3498db; 
+      color: #fff; 
+      position: relative;
+    }
+    
+    .btn-primary.loading {
+      color: transparent;
+    }
+    
+    .btn-primary .spinner {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 1s linear infinite;
+      display: none;
+    }
+    
+    @keyframes spin {
+      to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+    
+    .btn-primary:hover { background: #2980b9; }
+
+    .error {
+      color: #e74c3c;
+      font-size: 12px;
+      margin-top: 5px;
+      margin-bottom: 5px;
+      display: none;
+    }
+
+    .social-buttons { 
+      margin-top: 20px; 
+      position: relative;
+    }
+    
+    .social-buttons button {
+      width: 100%;
+      margin: 8px 0;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: not-allowed;
+      opacity: 0.7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      position: relative;
+    }
+    
+    .social-buttons .tooltip {
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #333;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      white-space: nowrap;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s, visibility 0.3s;
+      margin-bottom: 5px;
+    }
+    
+    .social-buttons .tooltip:after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: #333;
+    }
+    
+    .social-buttons button:hover .tooltip {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .google { background: #fff; border: 1px solid #ddd; color: #444; }
+    .linkedin { background: #0077b5; color: #fff; }
+    .github { background: #333; color: #fff; }
+
+    .overlay-container {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(135deg, #16a085, #3498db);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      text-align: center;
+      padding: 50px;
+      transition: transform 0.6s ease-in-out;
+    }
+
+    .container.sign-up-mode .overlay-container {
+      transform: translateX(-100%);
+    }
+
+    .overlay-container h2 { font-size: 26px; margin-bottom: 15px; }
+    .overlay-container p { color: #ecf0f1; margin-bottom: 20px; }
+
+    .toggle-btn {
+      background: transparent;
+      border: 2px solid #fff;
+      color: #fff;
+      padding: 10px 25px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s, color 0.3s;
+    }
+    .toggle-btn:hover {
+      background: #fff;
+      color: #3498db;
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+        height: auto;
+        width: 100%;
+        max-width: 400px;
+      }
+      
+      .form-container, .overlay-container {
+        position: relative;
+        width: 100%;
+        height: auto;
+        padding: 30px;
+      }
+      
+      .overlay-container {
+        order: -1;
+        height: 200px;
+      }
+      
+      .container.sign-up-mode .form-container.sign-up,
+      .container.sign-up-mode .overlay-container {
+        transform: none;
+      }
+      
+      .container.sign-up-mode .form-container.sign-in {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="container" role="main">
+    
+    <!-- Sign In Form -->
+    <section class="form-container sign-in" aria-label="Sign In Form">
+      <h1>Welcome Back 👋</h1>
+      <p>Sign in to continue to SwasthCheck</p>
+      <form id="loginForm" novalidate>
+        <div class="input-group">
+          <input type="email" id="loginEmail" placeholder="Email" required aria-label="Email" aria-describedby="loginEmailError">
+          <div class="error" id="loginEmailError" role="alert">Please enter a valid email.</div>
+        </div>
+        
+        <div class="input-group">
+          <input type="password" id="loginPassword" placeholder="Password" required aria-label="Password" aria-describedby="loginPasswordError">
+          <button type="button" class="toggle-password" aria-label="Show password">
+            <i class="far fa-eye"></i>
+          </button>
+          <div class="error" id="loginPasswordError" role="alert">Password cannot be empty.</div>
+        </div>
+
+        <div class="remember-forgot">
+          <label class="remember">
+            <input type="checkbox" id="rememberMe">
+            <span>Remember me</span>
+          </label>
+          <a href="#" class="forgot-password" id="forgotPassword">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="btn-primary" id="loginButton">
+          Sign In
+          <span class="spinner" aria-hidden="true"></span>
+        </button>
+      </form>
+      <div class="social-buttons">
+        <button class="google" disabled>
+          <i class="fab fa-google"></i> Continue with Google
+          <span class="tooltip">Coming soon</span>
+        </button>
+        <button class="linkedin" disabled>
+          <i class="fab fa-linkedin"></i> Continue with LinkedIn
+          <span class="tooltip">Coming soon</span>
+        </button>
+        <button class="github" disabled>
+          <i class="fab fa-github"></i> Continue with GitHub
+          <span class="tooltip">Coming soon</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Sign Up Form -->
+    <section class="form-container sign-up" aria-label="Sign Up Form">
+      <h1>Create Account 🚀</h1>
+      <p>Join SwasthCheck and start your health journey</p>
+      <form id="signupForm" novalidate>
+        <div class="input-group">
+          <input type="text" id="name" placeholder="Full Name" required aria-label="Full Name" aria-describedby="nameError">
+          <div class="error" id="nameError" role="alert">Name must be at least 3 characters.</div>
+        </div>
+
+        <div class="input-group">
+          <input type="email" id="email" placeholder="Email" required aria-label="Email" aria-describedby="emailError">
+          <div class="error" id="emailError" role="alert">Please enter a valid email.</div>
+        </div>
+
+        <div class="input-group">
+          <input type="password" id="password" placeholder="Password" required aria-label="Password" aria-describedby="passwordError passwordStrength">
+          <button type="button" class="toggle-password" aria-label="Show password">
+            <i class="far fa-eye"></i>
+          </button>
+          <div class="password-strength">
+            <div class="password-strength-bar" id="passwordStrengthBar"></div>
+          </div>
+          <div class="error" id="passwordError" role="alert">Password must be at least 6 characters and include letters & numbers.</div>
+        </div>
+
+        <button type="submit" class="btn-primary" id="signupButton">
+          Sign Up
+          <span class="spinner" aria-hidden="true"></span>
+        </button>
+      </form>
+      <div class="social-buttons">
+        <button class="google" disabled>
+          <i class="fab fa-google"></i> Continue with Google
+          <span class="tooltip">Coming soon</span>
+        </button>
+        <button class="linkedin" disabled>
+          <i class="fab fa-linkedin"></i> Continue with LinkedIn
+          <span class="tooltip">Coming soon</span>
+        </button>
+        <button class="github" disabled>
+          <i class="fab fa-github"></i> Continue with GitHub
+          <span class="tooltip">Coming soon</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Overlay -->
+    <aside class="overlay-container" aria-label="Switch Forms">
+      <h2 id="overlayTitle">Hello, Friend!</h2>
+      <p id="overlayText">Enter your personal details and start your health journey with us.</p>
+      <button class="toggle-btn" id="toggleBtn">Sign Up</button>
+    </aside>
+
+  </main>
+
+  <script>
+    const container = document.querySelector('.container');
+    const toggleBtn = document.getElementById('toggleBtn');
+    const overlayTitle = document.getElementById('overlayTitle');
+    const overlayText = document.getElementById('overlayText');
+
+    toggleBtn.addEventListener('click', () => {
+      container.classList.toggle('sign-up-mode');
+      if (container.classList.contains('sign-up-mode')) {
+        overlayTitle.textContent = "Welcome Back!";
+        overlayText.textContent = "To stay connected, please login with your info.";
+        toggleBtn.textContent = "Sign In";
+      } else {
+        overlayTitle.textContent = "Hello, Friend!";
+        overlayText.textContent = "Enter your personal details and start your health journey with us.";
+        toggleBtn.textContent = "Sign Up";
+      }
+    });
+
+    // Toggle password visibility
+    document.querySelectorAll('.toggle-password').forEach(button => {
+      button.addEventListener('click', function() {
+        const input = this.previousElementSibling;
+        const icon = this.querySelector('i');
+        
+        if (input.type === 'password') {
+          input.type = 'text';
+          icon.classList.replace('fa-eye', 'fa-eye-slash');
+          this.setAttribute('aria-label', 'Hide password');
+        } else {
+          input.type = 'password';
+          icon.classList.replace('fa-eye-slash', 'fa-eye');
+          this.setAttribute('aria-label', 'Show password');
+        }
+        
+        input.focus();
+      });
+    });
+
+    // Password strength indicator
+    const passwordInput = document.getElementById('password');
+    const strengthBar = document.getElementById('passwordStrengthBar');
+    
+    passwordInput.addEventListener('input', function() {
+      const password = this.value;
+      let strength = 0;
+      
+      if (password.length > 0) {
+        // Length check
+        if (password.length > 5) strength += 20;
+        if (password.length > 8) strength += 20;
+        
+        // Character variety checks
+        if (/[A-Z]/.test(password)) strength += 20;
+        if (/[0-9]/.test(password)) strength += 20;
+        if (/[^A-Za-z0-9]/.test(password)) strength += 20;
+      }
+      
+      // Update strength bar
+      strengthBar.style.width = strength + '%';
+      
+      // Color coding
+      if (strength < 40) {
+        strengthBar.style.background = '#e74c3c'; // Weak - red
+      } else if (strength < 80) {
+        strengthBar.style.background = '#f39c12'; // Medium - orange
+      } else {
+        strengthBar.style.background = '#2ecc71'; // Strong - green
+      }
+    });
+
+    // Forgot password handler
+    document.getElementById('forgotPassword').addEventListener('click', function(e) {
+      e.preventDefault();
+      alert('Password reset functionality coming soon!');
+    });
+
+    // Validation Functions
+    function validateEmail(email) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+    function validatePassword(password) {
+      return /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/.test(password);
+    }
+
+    // Show loading state
+    function setLoading(button, isLoading) {
+      if (isLoading) {
+        button.classList.add('loading');
+        button.querySelector('.spinner').style.display = 'block';
+        button.disabled = true;
+      } else {
+        button.classList.remove('loading');
+        button.querySelector('.spinner').style.display = 'none';
+        button.disabled = false;
+      }
+    }
+
+    // Sign Up Validation
+    document.getElementById('signupForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      let valid = true;
+
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const signupButton = document.getElementById('signupButton');
+
+      // Name
+      if (name.length < 3) {
+        document.getElementById('nameError').style.display = 'block';
+        valid = false;
+      } else {
+        document.getElementById('nameError').style.display = 'none';
+      }
+
+      // Email
+      if (!validateEmail(email)) {
+        document.getElementById('emailError').style.display = 'block';
+        valid = false;
+      } else {
+        document.getElementById('emailError').style.display = 'none';
+      }
+
+      // Password
+      if (!validatePassword(password)) {
+        document.getElementById('passwordError').style.display = 'block';
+        valid = false;
+      } else {
+        document.getElementById('passwordError').style.display = 'none';
+      }
+
+      if (valid) {
+        setLoading(signupButton, true);
+        
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        setLoading(signupButton, false);
+        alert("Registered Successfully!");
+      }
+    });
+
+    // Sign In Validation
+    document.getElementById('loginForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      let valid = true;
+
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const loginButton = document.getElementById('loginButton');
+
+      if (!validateEmail(email)) {
+        document.getElementById('loginEmailError').style.display = 'block';
+        valid = false;
+      } else {
+        document.getElementById('loginEmailError').style.display = 'none';
+      }
+
+      if (password.length < 1) {
+        document.getElementById('loginPasswordError').style.display = 'block';
+        valid = false;
+      } else {
+        document.getElementById('loginPasswordError').style.display = 'none';
+      }
+
+      if (valid) {
+        setLoading(loginButton, true);
+        
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        setLoading(loginButton, false);
+        alert("Logged In Successfully!");
+      }
+    });
+  </script>
+</body>
+</html>
